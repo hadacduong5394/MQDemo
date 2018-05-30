@@ -22,13 +22,17 @@ namespace ConsoleApplication1
 
         private static void Main(string[] args)
         {
-            PullMQ();
+            if (PushMQ(100))
+            {
+                PullMQ();
+            }
+            Console.ReadKey();
         }
 
-        private static void PushMQ()
+        private static bool PushMQ(int numberMsg)
         {
             int i = 1;
-            while (i < 10000)
+            while (i < numberMsg)
             {
                 int count = 0;
                 var message = new MQMessage(i);
@@ -39,11 +43,14 @@ namespace ConsoleApplication1
                 }
                 Console.WriteLine(" [x] Sent {0}", i++);
             }
-            Console.ReadKey();
+            Console.WriteLine("Push all msg done!");
+            return true;
         }
 
         private static void PullMQ()
         {
+            Console.WriteLine("Begin pull all msg...");
+
             var MQQueueName = ConfigurationManager.AppSettings["MQQueueName"];
             var factory = MQUtils.MQFactory;
             using (var conn = factory.CreateConnection())
@@ -68,10 +75,9 @@ namespace ConsoleApplication1
                             Thread.Sleep(1000);
                         }
                     }
+                    Console.WriteLine("pull all msg done!");
                 }
             }
-
-            Console.ReadKey();
         }
 
         private static bool ExcuteMessage(MQMessage msg)
